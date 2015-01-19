@@ -20,6 +20,11 @@ module.exports =
 	sendJoinLeaveEvents: true,
 	
 	/**
+	 * The number of previous publishes to keep and send to a client when they join.
+	 */
+	sendLastPublishesOnJoin: 10,
+	
+	/**
 	 * Whether or not to send all of the join tokens of current clients to the 
 	 * new client when they first join the channel.
 	 */
