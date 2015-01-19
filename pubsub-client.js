@@ -58,7 +58,6 @@ function PubSubChannel(id, metadata, pubsub)
   this.leave = function(data) {};
   this.receive = function(data) {};
   this.subscribed = true;
-  this.echo = false;
 }
 
 PubSubChannel.prototype = 
@@ -71,11 +70,7 @@ PubSubChannel.prototype =
       this.pubsub.socket.emit('publish', {
         id: this.id, 
         payload: data
-      }); 
-      
-      if (this.echo) {
-        this.receive(data);
-      }
+      });
     }
   },
   
