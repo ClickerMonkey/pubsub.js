@@ -59,24 +59,24 @@ channel.unsubscribe();
    * If this server should notify clients when other clients have joined or left
    * a channel. The client's token it used to subscribe is sent along with these
    * notifications so the client can identify them. If this is set to false
-   * then tokens are ignored altogether in the system. TODO
+   * then tokens are ignored altogether in the system.
    */
   sendJoinLeaveEvents: true,
   
   /**
-   * The maximum number of channels that can be created. TODO
+   * The maximum number of channels that can be created.
    */
   maxChannels: -1,
   
   /**
-   * The maximum number of clients that may connect. TODO
+   * The maximum number of clients that may connect.
    */
   maxClients: -1,
   
   /**
    * If a client has sent an invalid channel ID, join token, or publish data
    * this determines whether the client is marked untrused and is no longer
-   * sent any messages. TODO
+   * sent any messages.
    */
   ignoreInvalidClients: true,
   
