@@ -15,14 +15,14 @@ function PubSub(url)
 PubSub.prototype = 
 {
   
-	/**
-	 * Subscribe to the channel with the given ID while optionally sending over a token
-	 * which represents my subscription to the channel. This token can be sent to all
-	 * current and future subscribers to the channel as long as you're subscribed.
-	 *
-	 * @param any id
-	 * @param any token
-	 */
+  /**
+   * Subscribe to the channel with the given ID while optionally sending over a token
+   * which represents my subscription to the channel. This token can be sent to all
+   * current and future subscribers to the channel as long as you're subscribed.
+   *
+   * @param any id
+   * @param any token
+   */
   subscribe: function(id, token) 
   {
     this.socket.emit('subscribe', {
@@ -33,45 +33,46 @@ PubSub.prototype =
     return (this.channels[id] = new PubSubChannel(id, token, this));
   },
   
-	/**
-	 * Unsubscribes from all channels.
-	 */
+  /**
+   * Unsubscribes from all channels.
+   */
   unsubscribe: function() 
   {
     for (var channelId in this.channels) 
-		{
+    {
       this.channels[channelId].unsubscribe();
-			delete this.channels[channelId];
+      delete this.channels[channelId];
     }
   },
+  
+  /**
+   * Returns a function that listens for message emissions 
+   * and notifies the proper channel with the correct data.
+   *
+   * @param string listener
+   *     The function on the channel to invoke on emission.
+   * @param string property
+   *     The property on the received message to send to the channel's listening function.
+   */
+  onMessage: function(listener, property)
+  {
+    var pubsub = this;
+    
+    return function(msg) 
+    {
+      if (msg.id && msg.id in pubsub.channels) 
+      {
+        var channel = pubsub.channels[msg.id];
+        var callback = channel[listener];
+        
+        if (typeof callback === 'function')
+        {
+          callback.call(channel, msg[property]);
+        }
+      }
+    };
+  }
 	
-	/**
-	 * Returns a function that listens for message emissions 
-	 * and notifies the proper channel with the correct data.
-	 *
-	 * @param string listener
-	 * 		The function on the channel to invoke on emission.
-	 * @param string property
-	 * 		The property on the received message to send to the channel's listening function.
-	 */
-	onMessage: function(listener, property)
-	{
-		var pubsub = this;
-		
-		return function(msg) 
-		{
-			if (msg.id && msg.id in pubsub.channels) 
-			{
-				var channel = pubsub.channels[msg.id];
-				var callback = channel[listener];
-				
-				if (typeof callback === 'function')
-				{
-					callback.call(channel, msg[property]);
-				}
-			}
-		};
-	}
 };
 
 /**
@@ -93,11 +94,11 @@ function PubSubChannel(id, token, pubsub)
 
 PubSubChannel.prototype = 
 {
- 	
-	/**
-	 *
-	 * @param any data
-	 */
+   
+  /**
+   *
+   * @param any data
+   */
   publish: function(data) 
   {
     if (this.subscribed) 
@@ -108,10 +109,10 @@ PubSubChannel.prototype =
       });
     }
   },
-	
+  
   /**
-	 * 
-	 */
+   * 
+   */
   unsubscribe: function() 
   {    
     this.subscribed = false;
@@ -121,4 +122,5 @@ PubSubChannel.prototype =
     
     delete this.pubsub.channels[this.id];
   }
+	
 };

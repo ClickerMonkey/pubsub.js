@@ -1,11 +1,11 @@
-var app     = require('express')();
+var app      = require('express')();
 var http     = require('http').Server(app);
 var io       = require('socket.io')(http);
 
 var config   = require('./config');
-var IdMap   = require('./lib/IdMap');
-var Channel = require('./lib/Channel');
-var Client  = require('./lib/Client');
+var IdMap    = require('./lib/IdMap');
+var Channel  = require('./lib/Channel');
+var Client   = require('./lib/Client');
 
 global.$channels = new IdMap();
 
