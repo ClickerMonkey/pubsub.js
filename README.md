@@ -113,9 +113,9 @@ channel.unsubscribe();
   {
     'number':     true,
     'string':     true,
-    'boolean':     true,
+    'boolean':    true,
     'object':     false,
-    'undefined':   false
+    'undefined':  false
   },
   
   /**
@@ -139,8 +139,8 @@ channel.unsubscribe();
   {
     'number':     true,
     'string':     true,
-    'boolean':     true,
-    'undefined':   true,
+    'boolean':    true,
+    'undefined':  true,
     'object':     false
   },
   
@@ -164,8 +164,8 @@ channel.unsubscribe();
   {
     'number':     true,
     'string':     true,
-    'boolean':     true,
-    'undefined':   true,
+    'boolean':    true,
+    'undefined':  true,
     'object':     true
   },
   
