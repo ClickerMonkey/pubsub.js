@@ -13,7 +13,7 @@ A `channel` is a group of subscribers all listening for publish, join, & leave e
 npm install
 ```
 
-### Running Server
+### Running the Server
 
 ```
 node pubsub-server.js
