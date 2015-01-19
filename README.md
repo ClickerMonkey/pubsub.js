@@ -64,6 +64,28 @@ channel.unsubscribe();
   sendJoinLeaveEvents: true,
   
   /**
+   * The maximum number of channels that can be created. TODO
+   */
+  maxChannels: -1,
+  
+  /**
+   * The maximum number of clients that may connect. TODO
+   */
+  maxClients: -1,
+  
+  /**
+   * If a client has sent an invalid channel ID, join token, or publish data
+   * this determines whether the client is marked untrused and is no longer
+   * sent any messages. TODO
+   */
+  ignoreInvalidClients: true,
+  
+  /**
+   * The number of previous publishes to keep and send to a client when they join.
+   */
+  sendLastPublishesOnJoin: 10,
+  
+  /**
    * Whether or not to send all of the join tokens of current clients to the 
    * new client when they first join the channel.
    */
