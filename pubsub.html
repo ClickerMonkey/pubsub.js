@@ -15,21 +15,21 @@
     <script>
     
       var host = 'http://localhost:3000';
-      var channel = 'CHANNEL IDENTIFIER';
+      var channel = 'CHAT';
       var username = prompt('Your Name');
     
       var pubsub = new PubSub(host); 
       var channel = pubsub.subscribe(channel, username);
       
-      channel.join = function(user) {
+      channel.onjoin = function(user) {
         $('#channel').append(user + ' joined.<br/>');
       };
       
-      channel.leave = function(user) {
+      channel.onleave = function(user) {
         $('#channel').append(user + ' left.<br/>');
       };
       
-      channel.receive = function(msg) {
+      channel.onpublish = function(msg) {
         $('#channel').append(msg.user + ': ' + msg.text + '<br/>');
       };
       
