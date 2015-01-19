@@ -72,7 +72,7 @@ PubSub.prototype =
       }
     };
   }
-	
+  
 };
 
 /**
@@ -122,5 +122,5 @@ PubSubChannel.prototype =
     
     delete this.pubsub.channels[this.id];
   }
-	
+  
 };
