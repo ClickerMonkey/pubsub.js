@@ -1,9 +1,11 @@
 # pubsub.js
 A simple publish/subscribe server &amp; client written in javascript.
 
-A `channel` is a group of subscribers all listening for publish, join, & leave events. Channels are created when needed and are destroyed when there are no subscribers.
-
-`pubsub.js` is built with safety in mind. All data sent to the server is validated before it creates channels, subscribes clients, or publishes to a channel.
+The publish/subscribe model is perfect for making your web application appear real-time. Imagine several people all looking at the same page, when someone makes a change to the page it's instantly reflected to all other viewers of that page. This is `pubsub.js`!  
+  
+A `channel` is a group of subscribers all listening for publish, join, & leave events. Channels are created when needed and are destroyed when there are no subscribers.  
+  
+`pubsub.js` is built with safety in mind. All data sent to the server is validated before it creates channels, subscribes clients, or publishes to a channel.  
 
 ### Installing
 
