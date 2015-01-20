@@ -1,13 +1,12 @@
-var app      = require('express')();
-var http     = require('http').Server(app);
-var io       = require('socket.io')(http);
+var app            = require('express')();
+var http           = require('http').Server(app);
+var io             = require('socket.io')(http);
 
-var config   = require('./config');
-var IdMap    = require('./lib/IdMap');
-var Channel  = require('./lib/Channel');
-var Client   = require('./lib/Client');
-
-global.$channels = new IdMap();
+var config         = require('./config');
+var IdMap          = require('./lib/IdMap');
+var Channel        = require('./lib/Channel');
+var Client         = require('./lib/Client');
+var ChannelFactory = require('./lib/ChannelFactory');
 
 /**
  * Listen for new connections, and create a client when connected.
@@ -31,7 +30,7 @@ io.on('connection', function(socket)
     
     if (config.validTokens[ typeof token ] && config.validateToken( token )) 
     {
-      var channel = Channel.get( channelId, true );
+      var channel = ChannelFactory.get( channelId, true );
       
       if (channel) 
       {
@@ -55,7 +54,7 @@ io.on('connection', function(socket)
   socket.on('unsubscribe', function(msg) 
   {
     var channelId = msg.id;
-    var channel = Channel.get( channelId, false );
+    var channel = ChannelFactory.get( channelId, false );
     
     var channelValid = !!channel;
     
@@ -64,6 +63,11 @@ io.on('connection', function(socket)
       if (channel.has( client ) && client.subscribed( channel ))
       {
         client.leave( channel );
+                
+                if (channel.size === 0)
+                {
+                    ChannelFactory.remove( channel );
+                }
       
         if (config.debug)
         {
@@ -88,7 +92,7 @@ io.on('connection', function(socket)
   {
     var data = msg.data;
     var channelId = msg.id;
-    var channel = Channel.get( channelId, false );
+    var channel = ChannelFactory.get( channelId, false );
     
     if (channel)
     {
