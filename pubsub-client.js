@@ -2,6 +2,7 @@
  * Establishes a connection to the given HTTP URL to enable subscribing and publishing to channels.
  * 
  * @param string url
+ *   The URL to connect to.
  */
 function PubSub(url)
 {
@@ -10,6 +11,7 @@ function PubSub(url)
   this.socket.on('join', this.onMessage('onjoin', 'token'));
   this.socket.on('leave', this.onMessage('onleave', 'token'));
   this.socket.on('publish', this.onMessage('onpublish', 'data'));
+	this.socket.on('error', this.onMessage('onerror', 'message'));
 }
 
 PubSub.prototype = 
@@ -21,7 +23,11 @@ PubSub.prototype =
    * current and future subscribers to the channel as long as you're subscribed.
    *
    * @param any id
+	 *   The ID of the channel to subscribe to.
    * @param any token
+	 *   The token to send to subscribe to the channel. This token could be sent out
+	 *   to other subscribers to the channel.
+	 * @return The Channel subscribed to.
    */
   subscribe: function(id, token) 
   {
@@ -89,6 +95,7 @@ function PubSubChannel(id, token, pubsub)
   this.onjoin = function(data) {};
   this.onleave = function(data) {};
   this.onpublish = function(data) {};
+	this.onerror = function(message) {};
   this.subscribed = true;
 }
 
