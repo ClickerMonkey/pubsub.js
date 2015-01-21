@@ -20,6 +20,15 @@ module.exports =
   sendJoinLeaveEvents: true,
   
   /**
+   * Determines whether the client is notified with detailed information when they
+   * try to performan an invalid action (invalid channel ID, join token, etc). For
+   * production this should be false to keep hackers away from knowing how to take
+   * advantage of the system. If false they will simply return a generic 
+   * "System Error" message. TODO
+   */
+  detailedErrorMessage: true,
+  
+  /**
    * The maximum number of channels that can be created. TODO
    */
   maxChannels: -1,
