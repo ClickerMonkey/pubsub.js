@@ -1,3 +1,4 @@
+var Promise = require('./lib/Promise');
 
 module.exports = 
 {
@@ -89,7 +90,18 @@ module.exports =
    */
   validateId: function(id)
   {
-    return true;
+    var promise = new Promise( this );
+
+    if ( this.validIds[ typeof id ] )
+    {
+      promise.$success(); 
+    }
+    else
+    {
+      promise.$failure();
+    }
+
+    return promise;
   },
   
   /****************************************************************************
@@ -115,7 +127,18 @@ module.exports =
    */
   validateToken: function(token)
   {
-    return true;
+    var promise = new Promise( this );
+
+    if ( this.validTokens[ typeof token ] )
+    {
+      promise.$success(); 
+    }
+    else
+    {
+      promise.$failure();
+    }
+
+    return promise;
   },
   
   /****************************************************************************
@@ -139,7 +162,18 @@ module.exports =
    */
   validatePublish: function(message, client, channel)
   {
-    return true;
+    var promise = new Promise( this );
+
+    if ( this.validPublish[ typeof message ] )
+    {
+      promise.$success(); 
+    }
+    else
+    {
+      promise.$failure();
+    }
+
+    return promise;
   }
   
 };

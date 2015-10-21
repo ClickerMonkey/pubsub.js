@@ -20,6 +20,17 @@
     
       var pubsub = new PubSub(host); 
       var channel = pubsub.subscribe(channel, username);
+
+      var sendMessage = function() {
+        var message = $('#message');
+        if (message.val()) {
+          channel.publish({
+            user: username,
+            text: message.val()
+          });
+          message.val('');
+        }
+      };
       
       channel.onjoin = function(user) {
         $('#channel').append(user + ' joined.<br/>');
@@ -33,14 +44,11 @@
         $('#channel').append(msg.user + ': ' + msg.text + '<br/>');
       };
       
-      $('#send').click(function() {
-        var message = $('#message');
-        if (message.val()) {
-          channel.publish({
-            user: username,
-            text: message.val()
-          });
-          message.val('');
+      $('#send').click( sendMessage );
+        
+      $('#message').keyup(function(e) {
+        if ( e.keyCode == 13 ) {
+          sendMessage();
         }
       });
       

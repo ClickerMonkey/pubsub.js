@@ -124,7 +124,18 @@ channel.unsubscribe();
    */
   validateId: function(id)
   {
-    return true;
+    var promise = new Promise( this );
+
+    if ( this.validIds[ typeof id ] )
+    {
+      promise.$success(); 
+    }
+    else
+    {
+      promise.$failure();
+    }
+
+    return promise;
   },
   
   /****************************************************************************
@@ -150,7 +161,18 @@ channel.unsubscribe();
    */
   validateToken: function(token)
   {
-    return true;
+    var promise = new Promise( this );
+
+    if ( this.validTokens[ typeof token ] )
+    {
+      promise.$success(); 
+    }
+    else
+    {
+      promise.$failure();
+    }
+
+    return promise;
   },
   
   /****************************************************************************
@@ -174,7 +196,18 @@ channel.unsubscribe();
    */
   validatePublish: function(message, client, channel)
   {
-    return true;
+    var promise = new Promise( this );
+
+    if ( this.validPublish[ typeof message ] )
+    {
+      promise.$success(); 
+    }
+    else
+    {
+      promise.$failure();
+    }
+
+    return promise;
   }
   
 }

@@ -27,25 +27,30 @@ io.on('connection', function(socket)
   {
     var token = msg.token;
     var channelId = msg.id;
-    
-    if (config.validTokens[ typeof token ] && config.validateToken( token )) 
-    {
-      var channel = ChannelFactory.get( channelId, true );
-      
-      if (channel) 
+
+    config.validateToken( token ).then(
+      function onValidToken()
       {
-        client.join( channel, token );
-        
-        if (config.debug)
+        ChannelFactory.get( channelId, true ).then(
+          function onChannel(channel)
+          {
+            client.join( channel, token );
+
+            if (config.debug)
+            {
+              console.log( 'Client', socket.id, 'subscribed to channel', channelId, 'with token', token );
+            }
+          }
+        );
+      },
+      function onInvalidToken()
+      {
+        if ( config.debug )
         {
-          console.log( 'Client', socket.id, 'subscribed to channel', channelId, 'with token', token );
+          console.log( 'Client', socket.id, 'sent invalid token', token );
         }
       }
-    }
-    else if (config.debug)
-    {
-      console.log( 'Client', socket.id, 'sent invalid token', token );
-    }
+    );
   });
   
   /**
@@ -54,35 +59,38 @@ io.on('connection', function(socket)
   socket.on('unsubscribe', function(msg) 
   {
     var channelId = msg.id;
-    var channel = ChannelFactory.get( channelId, false );
     
-    var channelValid = !!channel;
-    
-    if (channel)
-    {
-      if (channel.has( client ) && client.subscribed( channel ))
+    ChannelFactory.get( channelId, false ).then(
+      function onChannel(channel)
       {
-        client.leave( channel );
-                
-                if (channel.size === 0)
-                {
-                    ChannelFactory.remove( channel );
-                }
-      
+        if (channel.has( client ) && client.subscribed( channel ))
+        {
+          client.leave( channel );
+                  
+          if (channel.size === 0)
+          {
+              ChannelFactory.remove( channel );
+          }
+        
+          if (config.debug)
+          {
+            console.log( 'Client', socket.id, 'unsubscribed from channel', channelId );
+          }
+        }
+        else if (config.debug)
+        {
+          console.log( 'Client', socket.id, 'does not participate in the channel', channelId, 'so they cannot unsubscribe' );
+        }
+      },
+      function onInvalidChannel()
+      {
         if (config.debug)
         {
-          console.log( 'Client', socket.id, 'unsubscribed from channel', channelId );
+          console.log( 'Client', socket.id, 'cannot unsubscribe from the channel', channelId, ', it does not exist' );
         }
       }
-      else if (config.debug)
-      {
-        console.log( 'Client', socket.id, 'does not participate in the channel', channelId, 'so they cannot unsubscribe' );
-      }
-    }
-    else if (config.debug)
-    {
-      console.log( 'Client', socket.id, 'cannot unsubscribe from the channel', channelId, ', it does not exist' );
-    }
+    );
+    
   });
   
   /**
@@ -92,40 +100,50 @@ io.on('connection', function(socket)
   {
     var data = msg.data;
     var channelId = msg.id;
-    var channel = ChannelFactory.get( channelId, false );
-    
-    if (channel)
-    {
-      // if you need to be subscribed to publish...
-      if (!config.requireSubscription || client.subscribed( channel ))
+
+    ChannelFactory.get( channelId, false ).then(
+      function onChannel(channel)
       {
-        // if it's a valid publish
-        if (config.validPublish[typeof data] && config.validatePublish( data, client, channel ))
+        // if you need to be subscribed to publish...
+        if (!config.requireSubscription || client.subscribed( channel ))
         {
-          channel.publish( client, {
-            id: channelId,
-            data: data
-          });
-          
-          if (config.debug)
-          {
-            console.log( 'Client', socket.id, 'published to channel', channelId, ':', data );
-          }
+          config.validatePublish( data, client, channel ).then(
+            function onValidPublish()
+            {
+              // if it's a valid publish
+              channel.publish( client, 
+              {
+                id: channelId,
+                data: data
+              });
+              
+              if (config.debug)
+              {
+                console.log( 'Client', socket.id, 'published to channel', channelId, ':', data );
+              }
+            },
+            function onInvalidPublish()
+            {
+              if (config.debug)
+              {
+                console.log( 'Client', socket.id, 'sent an invalid publish to channel', channelId, ':', data );
+              }
+            }
+          );
         }
         else if (config.debug)
         {
-          console.log( 'Client', socket.id, 'sent an invalid publish to channel', channelId, ':', data );
+          console.log( 'Client', socket.id, 'tried to publish to channel', channelId, 'but is not subscribed' );
+        }
+      },
+      function onInvalidChannel()
+      {
+        if (config.debug)
+        {
+          console.log( 'Client', socket.id, 'tried to publish to channel', channelId, 'which does not exist' );
         }
       }
-      else if (config.debug)
-      {
-        console.log( 'Client', socket.id, 'tried to publish to channel', channelId, 'but is not subscribed' );
-      }
-    }
-    else if (config.debug)
-    {
-      console.log( 'Client', socket.id, 'tried to publish to channel', channelId, 'which does not exist' );
-    }
+    );
   });
   
   /**
