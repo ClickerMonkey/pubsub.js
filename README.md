@@ -97,9 +97,12 @@ channel.unsubscribe();
   requireSubscription: true,
   
   /**
-   * Logs events when true.
+   * Logs events (comment out console.log to disable)
    */
-  debug: true,
+  debug: function()
+  {
+    console.log.apply( console, arguments );
+  },
   
   /****************************************************************************
    *                C H A N N E L    I D    V A L I D A T I O N

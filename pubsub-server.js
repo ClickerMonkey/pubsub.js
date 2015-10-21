@@ -15,10 +15,7 @@ io.on('connection', function(socket)
 {
   var client = new Client( socket );
   
-  if (config.debug)
-  {
-    console.log( 'Client Connected', socket.id );
-  }
+  config.debug( 'Client Connected', socket.id );
   
   /**
    * Handle when the client tries to subscribe to a channel.
@@ -36,19 +33,13 @@ io.on('connection', function(socket)
           {
             client.join( channel, token );
 
-            if (config.debug)
-            {
-              console.log( 'Client', socket.id, 'subscribed to channel', channelId, 'with token', token );
-            }
+            config.debug( 'Client', socket.id, 'subscribed to channel', channelId, 'with token', token );
           }
         );
       },
       function onInvalidToken()
       {
-        if ( config.debug )
-        {
-          console.log( 'Client', socket.id, 'sent invalid token', token );
-        }
+        config.debug( 'Client', socket.id, 'sent invalid token', token );
       }
     );
   });
@@ -72,22 +63,16 @@ io.on('connection', function(socket)
               ChannelFactory.remove( channel );
           }
         
-          if (config.debug)
-          {
-            console.log( 'Client', socket.id, 'unsubscribed from channel', channelId );
-          }
+          config.debug( 'Client', socket.id, 'unsubscribed from channel', channelId );
         }
-        else if (config.debug)
+        else
         {
-          console.log( 'Client', socket.id, 'does not participate in the channel', channelId, 'so they cannot unsubscribe' );
+          config.debug( 'Client', socket.id, 'does not participate in the channel', channelId, 'so they cannot unsubscribe' );
         }
       },
       function onInvalidChannel()
       {
-        if (config.debug)
-        {
-          console.log( 'Client', socket.id, 'cannot unsubscribe from the channel', channelId, ', it does not exist' );
-        }
+        config.debug( 'Client', socket.id, 'cannot unsubscribe from the channel', channelId, ', it does not exist' );
       }
     );
     
@@ -117,31 +102,22 @@ io.on('connection', function(socket)
                 data: data
               });
               
-              if (config.debug)
-              {
-                console.log( 'Client', socket.id, 'published to channel', channelId, ':', data );
-              }
+              config.debug( 'Client', socket.id, 'published to channel', channelId, ':', data );
             },
             function onInvalidPublish()
             {
-              if (config.debug)
-              {
-                console.log( 'Client', socket.id, 'sent an invalid publish to channel', channelId, ':', data );
-              }
+              config.debug( 'Client', socket.id, 'sent an invalid publish to channel', channelId, ':', data );
             }
           );
         }
-        else if (config.debug)
+        else
         {
-          console.log( 'Client', socket.id, 'tried to publish to channel', channelId, 'but is not subscribed' );
+          config.debug( 'Client', socket.id, 'tried to publish to channel', channelId, 'but is not subscribed' );
         }
       },
       function onInvalidChannel()
       {
-        if (config.debug)
-        {
-          console.log( 'Client', socket.id, 'tried to publish to channel', channelId, 'which does not exist' );
-        }
+        config.debug( 'Client', socket.id, 'tried to publish to channel', channelId, 'which does not exist' );
       }
     );
   });
@@ -153,11 +129,9 @@ io.on('connection', function(socket)
   {
     client.destroy();
     
-    if (config.debug)
-    {
-      console.log( 'Client Disconnected', socket.id );
-    }
-  });  
+    config.debug( 'Client Disconnected', socket.id );
+  });
+
 });
 
 http.listen( config.port );
