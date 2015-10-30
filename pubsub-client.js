@@ -110,7 +110,7 @@ PubSub.prototype =
 
     if ( !(id in this.channels) )
     {
-      this.channels[ id ] = new PubSubChannel( id, token, this );
+      this.channels[ id ] = new PubSubChannel( id, token, this );
     }
     
     return this.channels[ id ];
