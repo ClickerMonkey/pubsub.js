@@ -6,37 +6,83 @@
  */
 function PubSub(url)
 {
-  this.socket = io(url);
   this.channels = {};
-  this.socket.on('join', this.onMessage('onjoin', 'token'));
-  this.socket.on('leave', this.onMessage('onleave', 'token'));
-  this.socket.on('publish', this.onMessage('onpublish', 'data'));
-	this.socket.on('error', this.onMessage('onerror', 'message'));
-  this.listenToClose();
+  this.url = url;
+  this.pending = [];
+  this.listenToReady();
 }
+
 
 PubSub.prototype = 
 {
  
   /**
+   * Listens for when the document is ready.
+   */
+  listenToReady: function()
+  {
+    PubSub.ready( this.handleReady, this );
+  },
+
+  /**
+   * Handles the document beind ready.
+   */
+  handleReady: function()
+  {
+    this.socket = io( this.url );
+    this.socket.on('join', this.onMessage('onjoin', 'token'));
+    this.socket.on('leave', this.onMessage('onleave', 'token'));
+    this.socket.on('publish', this.onMessage('onpublish', 'data'));
+    this.socket.on('error', this.onMessage('onerror', 'message'));
+
+    this.listenToClose();
+
+    for (var i = 0; i < this.pending.length; i++)
+    {
+      var p = this.pending[ i ];
+
+      p.method.apply( p.context, p.arguments );
+    }
+  },
+
+  /**
    * Listens for when the window closes. We need to close the socket connection!
    */
   listenToClose: function()
   {
-    var socket = this.socket;
-    var closeSocket = function() 
-    {
-      socket.close();
-    };
+    PubSub.on( window, 'beforeunload', this.handleClose, this );
+  },
 
-    if ( window.addEventListener ) 
+  /**
+   * Handles the window closing.
+   */
+  handleClose: function()
+  {
+    this.socket.close();
+  },
+
+  /**
+   * Determines whether the socket is ready, if it's not then the method is 
+   * queued and true is returned. If the socket is ready then false is returned.
+   */
+  handlePending: function(that, method, args, dontQueue)
+  {
+    if ( this.socket ) 
     {
-      window.addEventListener( 'beforeunload', closeSocket, false );
+      return false;
     }
-    else if ( window.attachEvent ) 
+
+    if ( !dontQueue )
     {
-      window.attachEvent( 'onbeforeunload', closeSocket );
+      this.pending.push(
+      {
+        context: that,
+        method: method,
+        arguments: Array.prototype.slice.call( args )
+      });
     }
+
+    return true;
   },
 
   /**
@@ -53,12 +99,21 @@ PubSub.prototype =
    */
   subscribe: function(id, token) 
   {
-    this.socket.emit('subscribe', {
-      id: id,
-      token: token
-    });
+    if ( !this.handlePending( this, this.subscribe, arguments, true ) )
+    {
+      this.socket.emit('subscribe', 
+      {
+        id: id,
+        token: token
+      });
+    }
+
+    if ( !(id in this.channels) ) )
+    {
+      this.channels[ id ] = new PubSubChannel( id, token, this );
+    }
     
-    return (this.channels[id] = new PubSubChannel(id, token, this));
+    return this.channels[ id ];
   },
   
   /**
@@ -66,9 +121,15 @@ PubSub.prototype =
    */
   unsubscribe: function() 
   {
+    if ( this.handlePending( this, this.unsubscribe, arguments ) )
+    {
+      return;
+    }
+
     for (var channelId in this.channels) 
     {
       this.channels[channelId].unsubscribe();
+
       delete this.channels[channelId];
     }
   },
@@ -104,6 +165,45 @@ PubSub.prototype =
 };
 
 /**
+ * Listens for a DOM event on the given element.
+ */
+PubSub.on = function(element, eventName, func, context)
+{
+  var onEvent = function() 
+  {
+    func.apply( context || this, arguments );
+  };
+
+  if ( element.addEventListener ) 
+  {
+    element.addEventListener( eventName, func, false );
+  }
+  else if ( element.attachEvent ) 
+  {
+    element.attachEvent( 'on' + eventName, func );
+  }
+  else
+  {
+    element[ 'on' + eventName ] = func;
+  }
+};
+
+/**
+ * Listens for the document to be ready.
+ */
+PubSub.ready = function(func, funcContext)
+{
+  if ( document.readyState == 'complete' ) 
+  {
+    func.apply( funcContext || window );
+  } 
+  else 
+  {
+    PubSub.on( document, 'load', func, funcContext );
+  }
+};
+
+/**
  *
  * @param any id
  * @param any token
@@ -130,9 +230,15 @@ PubSubChannel.prototype =
    */
   publish: function(data) 
   {
+    if ( this.pubsub.handlePending( this, this.publish, arguments ) )
+    {
+      return;
+    }
+
     if (this.subscribed) 
     {
-      this.pubsub.socket.emit('publish', {
+      this.pubsub.socket.emit('publish', 
+      {
         id: this.id, 
         data: data
       });
@@ -143,9 +249,16 @@ PubSubChannel.prototype =
    * 
    */
   unsubscribe: function() 
-  {    
+  {
+    if ( this.pubsub.handlePending( this, this.publish, arguments ) )
+    {
+      return;
+    }
+
     this.subscribed = false;
-    this.pubsub.socket.emit('unsubscribe', {
+
+    this.pubsub.socket.emit('unsubscribe', 
+    {
       id: this.id
     });
     
