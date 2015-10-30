@@ -108,7 +108,7 @@ PubSub.prototype =
       });
     }
 
-    if ( !(id in this.channels) ) )
+    if ( !(id in this.channels) )
     {
       this.channels[ id ] = new PubSubChannel( id, token, this );
     }
