@@ -12,11 +12,33 @@ function PubSub(url)
   this.socket.on('leave', this.onMessage('onleave', 'token'));
   this.socket.on('publish', this.onMessage('onpublish', 'data'));
 	this.socket.on('error', this.onMessage('onerror', 'message'));
+  this.listenToClose();
 }
 
 PubSub.prototype = 
 {
-  
+ 
+  /**
+   * Listens for when the window closes. We need to close the socket connection!
+   */
+  listenToClose: function()
+  {
+    var socket = this.socket;
+    var closeSocket = function() 
+    {
+      socket.close();
+    };
+
+    if ( window.addEventListener ) 
+    {
+      window.addEventListener( 'beforeunload', closeSocket, false );
+    }
+    else if ( window.attachEvent ) 
+    {
+      window.attachEvent( 'onbeforeunload', closeSocket );
+    }
+  },
+
   /**
    * Subscribe to the channel with the given ID while optionally sending over a token
    * which represents my subscription to the channel. This token can be sent to all
