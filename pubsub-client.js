@@ -176,15 +176,15 @@ PubSub.on = function(element, eventName, func, context)
 
   if ( element.addEventListener ) 
   {
-    element.addEventListener( eventName, func, false );
+    element.addEventListener( eventName, onEvent, false );
   }
   else if ( element.attachEvent ) 
   {
-    element.attachEvent( 'on' + eventName, func );
+    element.attachEvent( 'on' + eventName, onEvent );
   }
   else
   {
-    element[ 'on' + eventName ] = func;
+    element[ 'on' + eventName ] = onEvent;
   }
 };
 
