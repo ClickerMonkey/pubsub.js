@@ -10,7 +10,7 @@ module.exports =
   /**
    * Whether or not to send a publish message back to the client who sent it.
    */
-  echoPublish: false,
+  echoPublish: true,
   
   /**
    * If this server should notify clients when other clients have joined or left

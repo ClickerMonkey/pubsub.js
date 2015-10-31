@@ -43,6 +43,8 @@ PubSub.prototype =
 
       p.method.apply( p.context, p.arguments );
     }
+
+    this.pending.length = 0;
   },
 
   /**
@@ -72,15 +74,12 @@ PubSub.prototype =
       return false;
     }
 
-    if ( !dontQueue )
+    this.pending.push(
     {
-      this.pending.push(
-      {
-        context: that,
-        method: method,
-        arguments: Array.prototype.slice.call( args )
-      });
-    }
+      context: that,
+      method: method,
+      arguments: Array.prototype.slice.call( args )
+    });
 
     return true;
   },
@@ -99,7 +98,9 @@ PubSub.prototype =
    */
   subscribe: function(id, token) 
   {
-    if ( !this.handlePending( this, this.subscribe, arguments, true ) )
+    // If this socket is ready, emit a subscribe. If it isn't ready, call this
+    // function again once the socket is ready so we can emit a subscribe.
+    if ( !this.handlePending( this, this.subscribe, arguments ) )
     {
       this.socket.emit('subscribe', 
       {
@@ -108,12 +109,14 @@ PubSub.prototype =
       });
     }
 
-    if ( !(id in this.channels) )
+    var channels = this.channels;
+
+    if ( !(id in channels) )
     {
-      this.channels[ id ] = new PubSubChannel( id, token, this );
+      channels[ id ] = new PubSubChannel( id, token, this );
     }
     
-    return this.channels[ id ];
+    return channels[ id ];
   },
   
   /**
@@ -121,16 +124,19 @@ PubSub.prototype =
    */
   unsubscribe: function() 
   {
+    // If the socket isn't ready, call this function once it is.
     if ( this.handlePending( this, this.unsubscribe, arguments ) )
     {
       return;
     }
 
-    for (var channelId in this.channels) 
-    {
-      this.channels[channelId].unsubscribe();
+    var channels = this.channels;
 
-      delete this.channels[channelId];
+    for (var channelId in channels) 
+    {
+      channels[ channelId ].unsubscribe();
+
+      delete channels[ channelId ];
     }
   },
   
@@ -145,18 +151,18 @@ PubSub.prototype =
    */
   onMessage: function(listener, property)
   {
-    var pubsub = this;
+    var channels = this.channels;
     
     return function(msg) 
     {
-      if (msg.id && msg.id in pubsub.channels) 
+      if (msg.id && msg.id in channels) 
       {
-        var channel = pubsub.channels[msg.id];
-        var callback = channel[listener];
+        var channel = channels[ msg.id ];
+        var callback = channel[ listener ];
         
         if (typeof callback === 'function')
         {
-          callback.call(channel, msg[property]);
+          callback.call( channel, msg[ property ] );
         }
       }
     };
@@ -199,7 +205,7 @@ PubSub.ready = function(func, funcContext)
   } 
   else 
   {
-    PubSub.on( document, 'load', func, funcContext );
+    PubSub.on( window, 'load', func, funcContext );
   }
 };
 
@@ -230,6 +236,7 @@ PubSubChannel.prototype =
    */
   publish: function(data) 
   {
+    // If the socket isn't ready, call this function once it is.
     if ( this.pubsub.handlePending( this, this.publish, arguments ) )
     {
       return;
@@ -250,7 +257,13 @@ PubSubChannel.prototype =
    */
   unsubscribe: function() 
   {
-    if ( this.pubsub.handlePending( this, this.publish, arguments ) )
+    // If the socket isn't ready, call this function once it is.
+    if ( this.pubsub.handlePending( this, this.unsubscribe, arguments ) )
+    {
+      return;
+    }
+
+    if ( !this.subscribed )
     {
       return;
     }
