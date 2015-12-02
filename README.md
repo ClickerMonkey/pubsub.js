@@ -9,7 +9,11 @@ A `Client` is a connection to the server from a web application that can be subs
   
 `pubsub.js` is built with safety in mind. All data sent to the server is validated before it creates channels, subscribes clients, or publishes to a channel.  
 
-### Installing
+### Installing the Client
+
+The easiest way to install pubsub.js is through bower via `bower install clickermonkey-pubsubjs`
+
+### Installing the Server
 
 ```
 npm install

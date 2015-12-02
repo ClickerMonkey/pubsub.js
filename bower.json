@@ -1,0 +1,26 @@
+{
+  "name": "pubsubjs",
+  "version": "0.0.1",
+  "homepage": "https://github.com/ClickerMonkey/pubsub.js",
+  "authors": [
+    "Philip Diffenderfer <pdiffenderfer@gmail.com>"
+  ],
+  "description": "A lightweight publish/subscribe server & client written in javascript.",
+  "main": "pubsub-client.js",
+  "keywords": [
+    "javascript",
+    "realtime",
+    "socket.io",
+    "publish",
+    "subscribe",
+    "pubsub"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
