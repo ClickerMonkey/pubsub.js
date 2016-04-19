@@ -2,7 +2,7 @@ var app            = require('express')();
 var http           = require('http').Server(app);
 var io             = require('socket.io')(http);
 
-var config         = require('./config');
+var config         = require(process.argv[2] || './config');
 var IdMap          = require('./lib/IdMap');
 var Channel        = require('./lib/Channel');
 var Client         = require('./lib/Client');
@@ -14,13 +14,13 @@ var ChannelFactory = require('./lib/ChannelFactory');
 io.on('connection', function(socket)
 {
   var client = new Client( socket );
-  
+
   config.debug( 'Client Connected', socket.id );
-  
+
   /**
    * Handle when the client tries to subscribe to a channel.
    */
-  socket.on('subscribe', function(msg) 
+  socket.on('subscribe', function(msg)
   {
     var token = msg.token;
     var channelId = msg.id;
@@ -43,26 +43,26 @@ io.on('connection', function(socket)
       }
     );
   });
-  
+
   /**
    * Handle when the client tries to unsubscribe from a channel.
    */
-  socket.on('unsubscribe', function(msg) 
+  socket.on('unsubscribe', function(msg)
   {
     var channelId = msg.id;
-    
+
     ChannelFactory.get( channelId, false ).then(
       function onChannel(channel)
       {
         if (channel.has( client ) && client.subscribed( channel ))
         {
           client.leave( channel );
-                  
+
           if (channel.size === 0)
           {
               ChannelFactory.remove( channel );
           }
-        
+
           config.debug( 'Client', socket.id, 'unsubscribed from channel', channelId );
         }
         else
@@ -75,13 +75,13 @@ io.on('connection', function(socket)
         config.debug( 'Client', socket.id, 'cannot unsubscribe from the channel', channelId, ', it does not exist' );
       }
     );
-    
+
   });
-  
+
   /**
    * Handle when the client tries to publish to a channel.
    */
-  socket.on('publish', function(msg) 
+  socket.on('publish', function(msg)
   {
     var data = msg.data;
     var channelId = msg.id;
@@ -96,12 +96,12 @@ io.on('connection', function(socket)
             function onValidPublish()
             {
               // if it's a valid publish
-              channel.publish( client, 
+              channel.publish( client,
               {
                 id: channelId,
                 data: data
               });
-              
+
               config.debug( 'Client', socket.id, 'published to channel', channelId, ':', data );
             },
             function onInvalidPublish()
@@ -121,14 +121,14 @@ io.on('connection', function(socket)
       }
     );
   });
-  
+
   /**
    * Handle when a client disconnects from the server.
    */
-  socket.on('disconnect', function() 
+  socket.on('disconnect', function()
   {
     client.destroy();
-    
+
     config.debug( 'Client Disconnected', socket.id );
   });
 

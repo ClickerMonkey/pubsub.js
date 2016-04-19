@@ -1,6 +1,6 @@
 {
-  "name": "pubsubjs",
-  "version": "0.0.1",
+  "name": "clickermonkey-pubsubjs",
+  "version": "0.0.2",
   "homepage": "https://github.com/ClickerMonkey/pubsub.js",
   "authors": [
     "Philip Diffenderfer <pdiffenderfer@gmail.com>"

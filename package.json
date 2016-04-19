@@ -1,6 +1,6 @@
 {
-  "name": "pubsub",
-  "version": "0.0.1",
+  "name": "clickermonkey-pubsubjs",
+  "version": "0.0.2",
   "description": "pubsub with Socket.io",
   "dependencies": {
     "express": "^4.10.2",
